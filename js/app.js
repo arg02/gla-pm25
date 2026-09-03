@@ -517,6 +517,7 @@ function seasonPlotBands(labels, wx) {
       const i0 = labels.indexOf(r.start);
       const i1 = labels.indexOf(r.end);
       if (i0 < 0 || i1 < 0) continue;
+      // Align band edges with month data points (category indices), not slot boundaries.
       bands.push({
         from: i0,
         to: i1,
