@@ -179,6 +179,76 @@ function renderWeatherTable(wx) {
   return `<thead><tr><th scope="col">London</th>${head}</tr></thead><tbody>${rows}</tbody>`;
 }
 
+const WX_METERS = [
+  { key: "precipMm", label: "Rain", unit: " mm", color: "#3b7cc9" },
+  { key: "easterlyPct", label: "Easterly", unit: "%", color: "#c46a2e" },
+  { key: "calmDayPct", label: "Calm", unit: "%", color: "#6b5a7a" },
+  { key: "meanWindMs", label: "Wind", unit: " m/s", color: "#0f9e90" },
+];
+
+function weatherMaxes(wx) {
+  const maxes = {};
+  for (const m of WX_METERS) maxes[m.key] = 0;
+  for (const year of Object.values(wx.years || {})) {
+    for (const season of ["spring", "summer"]) {
+      for (const m of WX_METERS) {
+        const v = year[season]?.[m.key];
+        if (Number.isFinite(v) && v > maxes[m.key]) maxes[m.key] = v;
+      }
+    }
+  }
+  return maxes;
+}
+
+function weatherTone(yearBlock) {
+  const rain = (yearBlock.spring?.precipMm || 0) + (yearBlock.summer?.precipMm || 0);
+  const calm = (yearBlock.spring?.calmDayPct || 0) + (yearBlock.summer?.calmDayPct || 0);
+  if (rain >= 340) return { className: "wx-card--wet", tag: "Wet / mixed" };
+  if (calm >= 100 && rain < 250) return { className: "wx-card--stagnant", tag: "Dry / stagnant" };
+  return { className: "wx-card--mid", tag: "Warmer / drier summer" };
+}
+
+function renderWeatherVisual(wx) {
+  const root = document.getElementById("weather-visual");
+  if (!root) return;
+  const years = Object.keys(wx.years || {}).sort();
+  const maxes = weatherMaxes(wx);
+  root.innerHTML = years
+    .map((year) => {
+      const block = wx.years[year];
+      const tone = weatherTone(block);
+      const seasons = [
+        { key: "spring", label: "Spring" },
+        { key: "summer", label: "Summer" },
+      ]
+        .map((season) => {
+          const stats = block[season.key] || {};
+          const meters = WX_METERS.map((m) => {
+            const v = stats[m.key];
+            const pct = Number.isFinite(v) && maxes[m.key] > 0 ? (100 * v) / maxes[m.key] : 0;
+            return `<div class="wx-meter">
+              <span class="wx-meter__lab">${m.label}</span>
+              <span class="wx-meter__track"><span class="wx-meter__fill" style="width:${pct}%;background:${m.color}"></span></span>
+              <span class="wx-meter__val">${weatherCell(v, m.unit)}</span>
+            </div>`;
+          }).join("");
+          return `<div class="wx-season">
+            <h4>${season.label} <span>${stats.meanTempC ?? "—"}°C</span></h4>
+            ${meters}
+          </div>`;
+        })
+        .join("");
+      return `<article class="wx-card ${tone.className}">
+        <header>
+          <h3>${year}</h3>
+          <p>${tone.tag}</p>
+        </header>
+        ${seasons}
+      </article>`;
+    })
+    .join("");
+}
+
 async function renderWeather() {
   const lede = document.getElementById("weather-lede");
   const table = document.getElementById("weather-table");
@@ -188,6 +258,7 @@ async function renderWeather() {
     if (!res.ok) throw new Error(`weather ${res.status}`);
     const wx = await res.json();
     lede.textContent = renderWeatherNarrative(wx);
+    renderWeatherVisual(wx);
     table.innerHTML = renderWeatherTable(wx);
     note.textContent = `St James’s Park daily weather from Open-Meteo archive. Easterly = dominant wind 45–135° (NE–SE), the continental sector linked with higher London PM₂.₅. ${wx.seasons.spring} / ${wx.seasons.summer}.`;
   } catch (err) {
