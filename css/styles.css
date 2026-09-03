@@ -5,7 +5,6 @@
   --void-2: #f6f9fb;
   --panel: #ffffff;
   --rule: rgba(21, 32, 43, 0.12);
-  --who: #c49a22;
   --bl-road: #e24528;
   --bl-bg: #0f9e90;
   --laqn-road: #c23040;
@@ -119,7 +118,6 @@ h1 sub {
 }
 
 .generated,
-.who-note,
 .incomplete,
 .colophon p {
   margin: 0;

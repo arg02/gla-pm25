@@ -30,7 +30,7 @@ python3 serve.py
 | Groups | Roadside = roadside / kerbside / urban traffic. Background = urban / suburban background. Drop industrial, rural, indoor. | Same grouping on `site_type` |
 | Statistic | Equal-weight mean of site annual means | Same |
 
-The current calendar year is plotted as year-to-date (dashed / starred). WHO annual PM2.5 guideline (5 µg/m³) is drawn on the chart. Series are selectable.
+The current calendar year is plotted as year-to-date (dashed / starred). Series are selectable.
 
 **Rounding:** reported µg/m³ figures use half-up (not banker's rounding). 50.49 → 50; 50.5 → 51. Category means are averaged from site values, then rounded to 1 decimal.
 

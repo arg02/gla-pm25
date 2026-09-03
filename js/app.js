@@ -21,7 +21,6 @@ const SERIES_STYLE = {
   },
 };
 
-const WHO_COLOR = "#c49a22";
 const AXIS_MUTED = "#5b6b78";
 const GRID = "rgba(21,32,43,0.08)";
 
@@ -141,7 +140,7 @@ function renderWeatherNarrative(wx) {
   const u22 = y["2022"]?.summer;
   const u25 = y["2025"]?.summer;
   if (!s23 || !s24 || !s22 || !s25) return "";
-  return `2023–24 look like washout years: springs were wetter (${s23.precipMm} mm and ${s24.precipMm} mm vs ${s22.precipMm} mm in 2022), windier, and less easterly. Summer 2023 was also cool and wet (${u23.meanTempC}°C, ${u23.precipMm} mm) compared with 2022 (${u22.meanTempC}°C, ${u22.precipMm} mm). Spring 2025 flipped the other way — only ${s25.precipMm} mm of rain, the calmest wind (${s25.meanWindMs} m/s; ${s25.calmDayPct}% of days below 3 m/s), and the most easterly flow (${s25.easterlyPct}% of days). Summer 2025 was the warmest of the set (${u25.meanTempC}°C). That mix is consistent with a weather-driven rebound in annual PM₂.₅, though it does not rule out emission changes.`;
+  return `2023–24 look like washout years: springs were wetter (${s23.precipMm} mm and ${s24.precipMm} mm vs ${s22.precipMm} mm in 2022), windier, and less easterly. Summer 2023 was also cool and wet (${u23.meanTempC}°C, ${u23.precipMm} mm) compared with 2022 (${u22.meanTempC}°C, ${u22.precipMm} mm). Spring 2025 flipped the other way — only ${s25.precipMm} mm of rain, the calmest wind (${s25.meanWindMs} m/s; ${s25.calmDayPct}% of days below 3 m/s), and the most easterly flow (${s25.easterlyPct}% of days). Summer 2025 was the warmest of the set (${u25.meanTempC}°C).`;
 }
 
 function renderWeatherTable(wx) {
@@ -287,18 +286,6 @@ function buildChart(data) {
       spanGaps: false,
       hidden: false,
     };
-  });
-
-  datasets.push({
-    label: "WHO annual 5 µg/m³",
-    data: labels.map(() => data.whoPm25 ?? 5),
-    borderColor: WHO_COLOR,
-    backgroundColor: WHO_COLOR,
-    borderDash: [2, 4],
-    pointRadius: 0,
-    borderWidth: 1.5,
-    tension: 0,
-    hidden: false,
   });
 
   const ctx = document.getElementById("chart");
