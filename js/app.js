@@ -518,8 +518,8 @@ function seasonPlotBands(labels, wx) {
       const i1 = labels.indexOf(r.end);
       if (i0 < 0 || i1 < 0) continue;
       bands.push({
-        from: i0 - 0.5,
-        to: i1 + 0.5,
+        from: i0,
+        to: i1,
         color: `rgba(${rgb}, ${r.alpha})`,
         zIndex: 0,
       });
