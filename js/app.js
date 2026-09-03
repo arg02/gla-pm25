@@ -225,17 +225,9 @@ const TONE_RGB = {
   "wx-card--mid": "15, 158, 144",
 };
 
-function monthEdge(scale, labels, index, side) {
-  const center = scale.getPixelForValue(labels[index]);
-  const neighborIndex = index + side;
-  if (neighborIndex < 0 || neighborIndex >= labels.length) {
-    return side < 0 ? scale.left : scale.right;
-  }
-  const neighbor = scale.getPixelForValue(labels[neighborIndex]);
-  if (!Number.isFinite(center) || !Number.isFinite(neighbor)) {
-    return side < 0 ? scale.left : scale.right;
-  }
-  return (center + neighbor) / 2;
+function tickPixel(scale, tickIndex) {
+  // Category scales in Chart.js expose tick positions that align with grid lines.
+  return scale.getPixelForTick(tickIndex);
 }
 
 function seasonBandPlugin(wx) {
@@ -264,10 +256,22 @@ function seasonBandPlugin(wx) {
           const i0 = labels.indexOf(band.start);
           const i1 = labels.indexOf(band.end);
           if (i0 < 0 || i1 < 0) continue;
-          const left = monthEdge(x, labels, i0, -1);
-          const right = monthEdge(x, labels, i1, 1);
+          // Compute the exact pixel width between adjacent month ticks,
+          // then extend by half-step on both sides so Mar-May and Jun-Aug
+          // cover whole months with no under/over-shoot.
+          const step =
+            (i0 + 1 < labels.length && Number.isFinite(tickPixel(x, i0 + 1)) && Number.isFinite(tickPixel(x, i0)))
+              ? tickPixel(x, i0 + 1) - tickPixel(x, i0)
+              : (i1 - 1 >= 0 && Number.isFinite(tickPixel(x, i1)) && Number.isFinite(tickPixel(x, i1 - 1)))
+                ? tickPixel(x, i1) - tickPixel(x, i1 - 1)
+                : 0;
+          if (!Number.isFinite(step) || step <= 0) continue;
+          const left = tickPixel(x, i0) - step / 2;
+          const right = tickPixel(x, i1) + step / 2;
+          const clampedLeft = Math.max(area.left, left);
+          const clampedRight = Math.min(area.right, right);
           ctx.fillStyle = `rgba(${rgb}, ${band.alpha})`;
-          ctx.fillRect(left, area.top, Math.max(0, right - left), area.bottom - area.top);
+          ctx.fillRect(clampedLeft, area.top, Math.max(0, clampedRight - clampedLeft), area.bottom - area.top);
         }
       }
       ctx.restore();
