@@ -225,9 +225,9 @@ const TONE_RGB = {
   "wx-card--mid": "15, 158, 144",
 };
 
-function tickPixel(scale, tickIndex) {
-  // Category scales in Chart.js expose tick positions that align with grid lines.
-  return scale.getPixelForTick(tickIndex);
+function monthCentrePixel(scale, labels, monthIndex) {
+  // For category scales: pixels for a label must respect current zoom/pan.
+  return scale.getPixelForValue(labels[monthIndex]);
 }
 
 function seasonBandPlugin(wx) {
@@ -256,18 +256,20 @@ function seasonBandPlugin(wx) {
           const i0 = labels.indexOf(band.start);
           const i1 = labels.indexOf(band.end);
           if (i0 < 0 || i1 < 0) continue;
-          // Compute the exact pixel width between adjacent month ticks,
-          // then extend by half-step on both sides so Mar-May and Jun-Aug
-          // cover whole months with no under/over-shoot.
+          // Compute exact pixel width between adjacent month *centres*,
+          // then extend by half-step on both sides so the band fully
+          // covers the months (and moves correctly with zoom/pan).
+          const c0 = monthCentrePixel(x, labels, i0);
+          const c1 = monthCentrePixel(x, labels, i1);
           const step =
-            (i0 + 1 < labels.length && Number.isFinite(tickPixel(x, i0 + 1)) && Number.isFinite(tickPixel(x, i0)))
-              ? tickPixel(x, i0 + 1) - tickPixel(x, i0)
-              : (i1 - 1 >= 0 && Number.isFinite(tickPixel(x, i1)) && Number.isFinite(tickPixel(x, i1 - 1)))
-                ? tickPixel(x, i1) - tickPixel(x, i1 - 1)
+            i0 + 1 < labels.length
+              ? monthCentrePixel(x, labels, i0 + 1) - c0
+              : i1 - 1 >= 0
+                ? c1 - monthCentrePixel(x, labels, i1 - 1)
                 : 0;
           if (!Number.isFinite(step) || step <= 0) continue;
-          const left = tickPixel(x, i0) - step / 2;
-          const right = tickPixel(x, i1) + step / 2;
+          const left = c0 - step / 2;
+          const right = c1 + step / 2;
           const clampedLeft = Math.max(area.left, left);
           const clampedRight = Math.min(area.right, right);
           ctx.fillStyle = `rgba(${rgb}, ${band.alpha})`;
