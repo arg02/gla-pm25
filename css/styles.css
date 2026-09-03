@@ -155,11 +155,41 @@ h1 sub {
   color: var(--ink-soft);
 }
 
+.chart-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem 1rem;
+  margin-bottom: 0.9rem;
+}
+
 .toggles {
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
-  margin-bottom: 0.9rem;
+}
+
+.zoom-controls {
+  display: flex;
+  gap: 0.3rem;
+}
+
+.zoom-controls button {
+  appearance: none;
+  border: 1px solid var(--rule);
+  background: rgba(255, 255, 255, 0.88);
+  color: var(--ink);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 600;
+  min-width: 2rem;
+  padding: 0.38rem 0.65rem;
+  cursor: pointer;
+}
+
+.zoom-controls button:hover {
+  background: rgba(21, 32, 43, 0.04);
 }
 
 .toggle {

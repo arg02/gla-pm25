@@ -26,10 +26,10 @@ const GRID = "rgba(21,32,43,0.08)";
 const IS_MONTHLY = document.body?.dataset?.view === "monthly";
 
 if (typeof Chart !== "undefined" && typeof window !== "undefined") {
-  const ann = window["chartjs-plugin-annotation"];
-  if (ann && Chart.register && IS_MONTHLY) {
+  const zoom = window["chartjs-plugin-zoom"];
+  if (zoom && Chart.register) {
     try {
-      Chart.register(ann);
+      Chart.register(zoom);
     } catch {
       /* already registered via UMD */
     }
@@ -225,41 +225,77 @@ const TONE_RGB = {
   "wx-card--mid": "15, 158, 144",
 };
 
-function seasonAnnotations(labels, wx) {
-  const years = [...new Set(labels.map((key) => key.slice(0, 4)))];
-  const ann = {};
-  for (const year of years) {
-    const block = wx?.years?.[year];
-    const tone = block ? weatherTone(block) : null;
-    const rgb = tone ? TONE_RGB[tone.className] : "21, 32, 43";
-    const springA = tone ? 0.22 : 0.05;
-    const summerA = tone ? 0.13 : 0.035;
-    const springMin = `${year}-03`;
-    const springMax = `${year}-05`;
-    const summerMin = `${year}-06`;
-    const summerMax = `${year}-08`;
-    if (labels.includes(springMin) && labels.includes(springMax)) {
-      ann[`spr${year}`] = {
-        type: "box",
-        xMin: springMin,
-        xMax: springMax,
-        backgroundColor: `rgba(${rgb}, ${springA})`,
-        borderWidth: 0,
-        drawTime: "beforeDatasetsDraw",
-      };
-    }
-    if (labels.includes(summerMin) && labels.includes(summerMax)) {
-      ann[`sum${year}`] = {
-        type: "box",
-        xMin: summerMin,
-        xMax: summerMax,
-        backgroundColor: `rgba(${rgb}, ${summerA})`,
-        borderWidth: 0,
-        drawTime: "beforeDatasetsDraw",
-      };
-    }
+function monthEdge(scale, labels, index, side) {
+  const center = scale.getPixelForValue(labels[index]);
+  const neighborIndex = index + side;
+  if (neighborIndex < 0 || neighborIndex >= labels.length) {
+    return side < 0 ? scale.left : scale.right;
   }
-  return ann;
+  const neighbor = scale.getPixelForValue(labels[neighborIndex]);
+  if (!Number.isFinite(center) || !Number.isFinite(neighbor)) {
+    return side < 0 ? scale.left : scale.right;
+  }
+  return (center + neighbor) / 2;
+}
+
+function seasonBandPlugin(wx) {
+  return {
+    id: "seasonBands",
+    beforeDatasetsDraw(chart) {
+      const labels = chart.data.labels || [];
+      const x = chart.scales.x;
+      const area = chart.chartArea;
+      if (!x || !area) return;
+      const ctx = chart.ctx;
+      ctx.save();
+      ctx.beginPath();
+      ctx.rect(area.left, area.top, area.right - area.left, area.bottom - area.top);
+      ctx.clip();
+      const years = [...new Set(labels.map((key) => String(key).slice(0, 4)))];
+      for (const year of years) {
+        const block = wx?.years?.[year];
+        const tone = block ? weatherTone(block) : null;
+        const rgb = tone ? TONE_RGB[tone.className] : "21, 32, 43";
+        const bands = [
+          { start: `${year}-03`, end: `${year}-05`, alpha: tone ? 0.22 : 0.05 },
+          { start: `${year}-06`, end: `${year}-08`, alpha: tone ? 0.13 : 0.035 },
+        ];
+        for (const band of bands) {
+          const i0 = labels.indexOf(band.start);
+          const i1 = labels.indexOf(band.end);
+          if (i0 < 0 || i1 < 0) continue;
+          const left = monthEdge(x, labels, i0, -1);
+          const right = monthEdge(x, labels, i1, 1);
+          ctx.fillStyle = `rgba(${rgb}, ${band.alpha})`;
+          ctx.fillRect(left, area.top, Math.max(0, right - left), area.bottom - area.top);
+        }
+      }
+      ctx.restore();
+    },
+  };
+}
+
+const ZOOM_OPTIONS = {
+  limits: {
+    x: { min: "original", max: "original" },
+    y: { min: "original", max: "original" },
+  },
+  pan: { enabled: true, mode: "x", modifierKey: null },
+  zoom: {
+    wheel: { enabled: true },
+    pinch: { enabled: true },
+    mode: "x",
+  },
+};
+
+function bindZoomControls(chart) {
+  const inn = document.getElementById("zoom-in");
+  const out = document.getElementById("zoom-out");
+  const reset = document.getElementById("zoom-reset");
+  if (!inn || !out || !reset || typeof chart.zoom !== "function") return;
+  inn.addEventListener("click", () => chart.zoom(1.4));
+  out.addEventListener("click", () => chart.zoom(0.7));
+  reset.addEventListener("click", () => chart.resetZoom());
 }
 
 function renderWeatherVisual(wx) {
@@ -353,6 +389,7 @@ function buildChart(data) {
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },
+        zoom: ZOOM_OPTIONS,
         tooltip: {
           backgroundColor: "#15202b",
           titleColor: "#f6f9fb",
@@ -433,15 +470,14 @@ function buildMonthlyChart(data, wx) {
   return new Chart(ctx, {
     type: "line",
     data: { labels, datasets },
+    plugins: [seasonBandPlugin(wx)],
     options: {
       responsive: true,
       maintainAspectRatio: false,
       interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },
-        annotation: {
-          annotations: seasonAnnotations(labels, wx),
-        },
+        zoom: ZOOM_OPTIONS,
         tooltip: {
           backgroundColor: "#15202b",
           titleColor: "#f6f9fb",
@@ -516,7 +552,7 @@ async function main() {
     if (view === "monthly") {
       incompleteEl.hidden = false;
       incompleteEl.textContent =
-        "Monthly means through the last complete calendar month. Current month is omitted.";
+        "Monthly means through the last complete calendar month. Current month is omitted. Use +/− to zoom, drag to pan, or scroll the chart.";
     } else if (annual.incompleteYears?.length) {
       incompleteEl.hidden = false;
       incompleteEl.textContent = `${annual.incompleteYears.join(", ")} marked with * is year-to-date, not a full calendar year.`;
@@ -537,6 +573,7 @@ async function main() {
       chart = buildChart(annual);
     }
     renderToggles(annual.series, chart);
+    bindZoomControls(chart);
     await renderWeather();
   } catch (err) {
     generated.textContent = "";
