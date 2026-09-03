@@ -1,0 +1,13 @@
+{
+  "name": "pm25-annual-levels",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "fetch:bl": "node scripts/fetch-bl-annual.mjs",
+    "fetch:laqn": "Rscript R/fetch_laqn_pm25_annual.R",
+    "combine": "node scripts/combine-annual.mjs",
+    "build:data": "node scripts/fetch-bl-annual.mjs && Rscript R/fetch_laqn_pm25_annual.R && node scripts/combine-annual.mjs",
+    "serve": "python3 serve.py"
+  }
+}

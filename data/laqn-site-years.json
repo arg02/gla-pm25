@@ -1,0 +1,142 @@
+{
+  "generatedAt": "2026-09-03T09:32:53Z",
+  "network": "laqn-imperial",
+  "source": "openair::importImperial pm25; >=75% hourly capture in 2021–2025",
+  "completeYears": [2021, 2022, 2023, 2024, 2025],
+  "years": [2021, 2022, 2023, 2024, 2025, 2026],
+  "minCoverage": 0.75,
+  "skipped": {
+    "closed": 336,
+    "opened_after_2021": 12,
+    "ungrouped": 0,
+    "industrial_rural": 2,
+    "no_pm25": 107,
+    "incomplete_years": 30,
+    "import_failed": 0
+  },
+  "nSites": 5,
+  "nRoadside": 3,
+  "nBackground": 2,
+  "sites": [
+    {
+      "siteCode": ["BQ9"],
+      "name": ["Bexley - Slade Green Fidas"],
+      "classification": ["Suburban"],
+      "group": ["Background"],
+      "startYear": 2020,
+      "source": ["openair::importImperial"],
+      "coverage": {
+        "2021": 0.9994,
+        "2022": 0.9966,
+        "2023": 0.9522,
+        "2024": 0.9539,
+        "2025": 0.9852,
+        "2026": 0.7256
+      },
+      "annual": {
+        "2021": 9.03,
+        "2022": 9.36,
+        "2023": 8.46,
+        "2024": 7.78,
+        "2025": 9.72,
+        "2026": 8.18
+      }
+    },
+    {
+      "siteCode": ["CE2"],
+      "name": ["Waterloo Place (The Crown Estate)"],
+      "classification": ["Roadside"],
+      "group": ["Roadside"],
+      "startYear": 2020,
+      "source": ["openair::importImperial"],
+      "coverage": {
+        "2021": 0.9763,
+        "2022": 0.9097,
+        "2023": 0.89,
+        "2024": 0.8711,
+        "2025": 0.9832,
+        "2026": 0.9954
+      },
+      "annual": {
+        "2021": 8.83,
+        "2022": 10.08,
+        "2023": 9.48,
+        "2024": 9.28,
+        "2025": 10,
+        "2026": 8.66
+      }
+    },
+    {
+      "siteCode": ["BT4"],
+      "name": ["Brent - Ikea"],
+      "classification": ["Roadside"],
+      "group": ["Roadside"],
+      "startYear": 2003,
+      "source": ["openair::importImperial"],
+      "coverage": {
+        "2021": 0.9724,
+        "2022": 0.9919,
+        "2023": 0.991,
+        "2024": 0.992,
+        "2025": 0.9863,
+        "2026": 0.9542
+      },
+      "annual": {
+        "2021": 13.49,
+        "2022": 12.79,
+        "2023": 11.2,
+        "2024": 10.09,
+        "2025": 13.08,
+        "2026": 12.06
+      }
+    },
+    {
+      "siteCode": ["HP1"],
+      "name": ["Lewisham - Honor Oak Park"],
+      "classification": ["Urban Background"],
+      "group": ["Background"],
+      "startYear": 2018,
+      "source": ["openair::importImperial"],
+      "coverage": {
+        "2021": 0.9679,
+        "2022": 0.991,
+        "2023": 0.9992,
+        "2024": 0.999,
+        "2025": 0.9878,
+        "2026": 0.9885
+      },
+      "annual": {
+        "2021": 8.8,
+        "2022": 8.08,
+        "2023": 7.33,
+        "2024": 6.74,
+        "2025": 8.05,
+        "2026": 7.04
+      }
+    },
+    {
+      "siteCode": ["MR9"],
+      "name": ["Marylebone Road - Fidas"],
+      "classification": ["Kerbside"],
+      "group": ["Roadside"],
+      "startYear": 2017,
+      "source": ["openair::importImperial"],
+      "coverage": {
+        "2021": 0.9712,
+        "2022": 0.9844,
+        "2023": 0.9919,
+        "2024": 0.9927,
+        "2025": 0.9108,
+        "2026": 0.9786
+      },
+      "annual": {
+        "2021": 10.06,
+        "2022": 10.27,
+        "2023": 8.74,
+        "2024": 8.73,
+        "2025": 10.34,
+        "2026": 9.22
+      }
+    }
+  ]
+}

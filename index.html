@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Annual PM₂.₅ · Roadside vs Background</title>
+    <meta name="theme-color" content="#071018" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Commissioner:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,500;9..144,640&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/styles.css" />
+  </head>
+  <body>
+    <div class="haze" aria-hidden="true"></div>
+    <header class="mast">
+      <p class="kicker">London monitoring · 2021–present</p>
+      <h1>Annual PM<sub>2.5</sub></h1>
+      <p class="lede">
+        Mean of continuously active <em>roadside</em> and <em>background</em> sites —
+        Breathe London sensors beside the LAQN (Imperial) network.
+      </p>
+    </header>
+
+    <section class="board" aria-label="Annual PM2.5 chart">
+      <div class="board__meta">
+        <p class="generated" id="generated">Loading…</p>
+        <p class="who-note">Dashed gold line: WHO annual guideline, 5 µg/m³</p>
+      </div>
+      <div class="toggles" id="toggles" role="group" aria-label="Series visibility"></div>
+      <div class="chart-wrap">
+        <canvas id="chart" aria-label="Annual PM2.5 by network and site type"></canvas>
+      </div>
+      <p class="incomplete" id="incomplete" hidden></p>
+    </section>
+
+    <section class="counts" id="counts"></section>
+
+    <section class="means" aria-labelledby="means-heading">
+      <h2 id="means-heading">Annual means</h2>
+      <p class="means__unit">µg/m³ · equal-weight mean of site annual means</p>
+      <div class="means__scroll">
+        <table class="means-table" id="means-table"></table>
+      </div>
+    </section>
+
+    <footer class="colophon">
+      <p>
+        Breathe London annual means from <code>getRawClarityData?queryType=year</code>
+        (official sensor-info source). LAQN from R <code>openair::importImperial</code>,
+        ≥75% hourly capture each complete year. Equal-weight mean of site annual means.
+        Cohort: currently active / open, operating since 2021, with data in every year 2021–2025.
+      </p>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="js/app.js"></script>
+  </body>
+</html>

@@ -1,0 +1,169 @@
+{
+  "generatedAt": "2026-09-03T09:28:11.699Z",
+  "network": "breathe-london",
+  "source": "getRawClarityData queryType=year species=ipm25 ecConversion=1",
+  "completeYears": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025,
+    2026
+  ],
+  "skipped": {
+    "inactive": 540,
+    "indoor": 0,
+    "startedAfter2021": 115,
+    "ungrouped": 0,
+    "yearEndpointFailed": 0,
+    "incompleteYears": 0
+  },
+  "nSites": 8,
+  "nRoadside": 5,
+  "nBackground": 3,
+  "sites": [
+    {
+      "siteCode": "CLDP0020",
+      "name": "A2 Falconwood (reference co-location)",
+      "classification": "Roadside",
+      "group": "Roadside",
+      "startDate": "2021-02-16T16:32:29.380Z",
+      "startYear": 2021,
+      "source": "getRawClarityData:year",
+      "annual": {
+        "2021": 11.16,
+        "2022": 10.32,
+        "2023": 8.13,
+        "2024": 7.69,
+        "2025": 10.38,
+        "2026": 9.33
+      }
+    },
+    {
+      "siteCode": "CLDP0022",
+      "name": " Elephant and Castle (reference co-location)",
+      "classification": "Urban Background",
+      "group": "Background",
+      "startDate": "2021-02-17T12:06:44.483Z",
+      "startYear": 2021,
+      "source": "getRawClarityData:year",
+      "annual": {
+        "2021": 9.13,
+        "2022": 9.18,
+        "2023": 7.92,
+        "2024": 7.47,
+        "2025": 9.54,
+        "2026": 7.7
+      }
+    },
+    {
+      "siteCode": "CLDP0025",
+      "name": "Rainham (reference co-location)",
+      "classification": "Roadside",
+      "group": "Roadside",
+      "startDate": "2021-02-23T13:46:57.410Z",
+      "startYear": 2021,
+      "source": "getRawClarityData:year",
+      "annual": {
+        "2021": 11.09,
+        "2022": 10.78,
+        "2023": 8.52,
+        "2024": 8.51,
+        "2025": 12.02,
+        "2026": 9.93
+      }
+    },
+    {
+      "siteCode": "CLDP0028",
+      "name": "Brent Ikea (reference co-location)",
+      "classification": "Roadside",
+      "group": "Roadside",
+      "startDate": "2021-02-19T14:26:21.050Z",
+      "startYear": 2021,
+      "source": "getRawClarityData:year",
+      "annual": {
+        "2021": 14.19,
+        "2022": 13.05,
+        "2023": 10.71,
+        "2024": 9.43,
+        "2025": 12.55,
+        "2026": 11.51
+      }
+    },
+    {
+      "siteCode": "CLDP0029",
+      "name": "Honor Oak Park - Solar (reference co-location)",
+      "classification": "Urban Background",
+      "group": "Background",
+      "startDate": "2021-02-03T00:10:52.357Z",
+      "startYear": 2021,
+      "source": "getRawClarityData:year",
+      "annual": {
+        "2021": 9.01,
+        "2022": 8.14,
+        "2023": 7.34,
+        "2024": 6.73,
+        "2025": 8.33,
+        "2026": 7.2
+      }
+    },
+    {
+      "siteCode": "CLDP0030",
+      "name": "Honor Oak Park Mains(reference co-location)",
+      "classification": "Urban Background",
+      "group": "Background",
+      "startDate": "2021-04-16T12:02:11.880Z",
+      "startYear": 2021,
+      "source": "getRawClarityData:year",
+      "annual": {
+        "2021": 8.17,
+        "2022": 8.04,
+        "2023": 7.32,
+        "2024": 6.67,
+        "2025": 8.24,
+        "2026": 7.14
+      }
+    },
+    {
+      "siteCode": "CLDP0125",
+      "name": "Silvertown Tunnel access corridor  - Silvertown Way",
+      "classification": "Roadside",
+      "group": "Roadside",
+      "startDate": "2021-09-09T14:10:40.517Z",
+      "startYear": 2021,
+      "source": "getRawClarityData:year",
+      "annual": {
+        "2021": 11.23,
+        "2022": 10.79,
+        "2023": 8.63,
+        "2024": 7.43,
+        "2025": 8.9,
+        "2026": 8.28
+      }
+    },
+    {
+      "siteCode": "CLDP0278",
+      "name": "Sloane Street",
+      "classification": "Roadside",
+      "group": "Roadside",
+      "startDate": "2021-12-13T14:35:36.970Z",
+      "startYear": 2021,
+      "source": "getRawClarityData:year",
+      "annual": {
+        "2021": 11.6,
+        "2022": 10.54,
+        "2023": 8.89,
+        "2024": 7.76,
+        "2025": 10.85,
+        "2026": 9.07
+      }
+    }
+  ]
+}
