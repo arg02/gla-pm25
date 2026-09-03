@@ -23,6 +23,18 @@ const SERIES_STYLE = {
 
 const AXIS_MUTED = "#5b6b78";
 const GRID = "rgba(21,32,43,0.08)";
+const IS_MONTHLY = document.body?.dataset?.view === "monthly";
+
+if (typeof Chart !== "undefined" && typeof window !== "undefined") {
+  const ann = window["chartjs-plugin-annotation"];
+  if (ann && Chart.register && IS_MONTHLY) {
+    try {
+      Chart.register(ann);
+    } catch {
+      /* already registered via UMD */
+    }
+  }
+}
 
 function fmtWhen(iso) {
   if (!iso) return "";
@@ -207,6 +219,49 @@ function weatherTone(yearBlock) {
   return { className: "wx-card--mid", tag: "Warmer / drier summer" };
 }
 
+const TONE_RGB = {
+  "wx-card--wet": "59, 124, 201",
+  "wx-card--stagnant": "196, 106, 46",
+  "wx-card--mid": "15, 158, 144",
+};
+
+function seasonAnnotations(labels, wx) {
+  const years = [...new Set(labels.map((key) => key.slice(0, 4)))];
+  const ann = {};
+  for (const year of years) {
+    const block = wx?.years?.[year];
+    const tone = block ? weatherTone(block) : null;
+    const rgb = tone ? TONE_RGB[tone.className] : "21, 32, 43";
+    const springA = tone ? 0.22 : 0.05;
+    const summerA = tone ? 0.13 : 0.035;
+    const springMin = `${year}-03`;
+    const springMax = `${year}-05`;
+    const summerMin = `${year}-06`;
+    const summerMax = `${year}-08`;
+    if (labels.includes(springMin) && labels.includes(springMax)) {
+      ann[`spr${year}`] = {
+        type: "box",
+        xMin: springMin,
+        xMax: springMax,
+        backgroundColor: `rgba(${rgb}, ${springA})`,
+        borderWidth: 0,
+        drawTime: "beforeDatasetsDraw",
+      };
+    }
+    if (labels.includes(summerMin) && labels.includes(summerMax)) {
+      ann[`sum${year}`] = {
+        type: "box",
+        xMin: summerMin,
+        xMax: summerMax,
+        backgroundColor: `rgba(${rgb}, ${summerA})`,
+        borderWidth: 0,
+        drawTime: "beforeDatasetsDraw",
+      };
+    }
+  }
+  return ann;
+}
+
 function renderWeatherVisual(wx) {
   const root = document.getElementById("weather-visual");
   if (!root) return;
@@ -348,28 +403,146 @@ function buildChart(data) {
   });
 }
 
+function monthTick(key) {
+  const [year, month] = String(key).split("-");
+  if (month === "01") return year;
+  return "";
+}
+
+function buildMonthlyChart(data, wx) {
+  const labels = data.months.map(String);
+  const datasets = data.series.map((s) => {
+    const style = SERIES_STYLE[s.id] || SERIES_STYLE.bl_roadside;
+    return {
+      label: s.label,
+      data: labels.map((m) => s.values?.[m] ?? null),
+      borderColor: style.color,
+      backgroundColor: style.color,
+      borderDash: style.dash,
+      pointStyle: style.pointStyle,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      borderWidth: 2,
+      tension: 0.2,
+      spanGaps: false,
+      hidden: false,
+    };
+  });
+
+  const ctx = document.getElementById("chart");
+  return new Chart(ctx, {
+    type: "line",
+    data: { labels, datasets },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
+      plugins: {
+        legend: { display: false },
+        annotation: {
+          annotations: seasonAnnotations(labels, wx),
+        },
+        tooltip: {
+          backgroundColor: "#15202b",
+          titleColor: "#f6f9fb",
+          bodyColor: "#f6f9fb",
+          titleFont: { family: "Fraunces", size: 14 },
+          bodyFont: { family: "Commissioner", size: 13 },
+          padding: 12,
+          callbacks: {
+            title(items) {
+              const key = items[0]?.label || "";
+              const [y, m] = key.split("-");
+              const names = [
+                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+              ];
+              return `${names[Number(m) - 1] || m} ${y}`;
+            },
+            label(item) {
+              const v = item.parsed.y;
+              if (v == null) return `${item.dataset.label}: no data`;
+              return `${item.dataset.label}: ${fmtUg(v)} µg/m³`;
+            },
+          },
+        },
+      },
+      scales: {
+        x: {
+          grid: { display: false },
+          ticks: {
+            font: { family: "Commissioner", size: 12 },
+            color: AXIS_MUTED,
+            maxRotation: 0,
+            autoSkip: false,
+            callback(value, index) {
+              return monthTick(labels[index]);
+            },
+          },
+        },
+        y: {
+          beginAtZero: true,
+          suggestedMax: 20,
+          title: {
+            display: true,
+            text: "µg/m³",
+            color: AXIS_MUTED,
+            font: { family: "Commissioner", size: 12 },
+          },
+          grid: { color: GRID },
+          ticks: {
+            font: { family: "Commissioner", size: 12 },
+            color: AXIS_MUTED,
+          },
+        },
+      },
+    },
+  });
+}
+
+async function loadJson(url) {
+  const res = await fetch(url, { cache: "no-store" });
+  if (!res.ok) throw new Error(`Could not load ${url} (${res.status})`);
+  return res.json();
+}
+
 async function main() {
   const generated = document.getElementById("generated");
+  const view = document.body.dataset.view || "annual";
   try {
-    const res = await fetch("data/annual-pm25.json", { cache: "no-store" });
-    if (!res.ok) throw new Error(`Could not load data (${res.status})`);
-    const data = await res.json();
-    generated.textContent = `Updated ${fmtWhen(data.generatedAt)}`;
+    const annual = await loadJson("data/annual-pm25.json");
+    generated.textContent = `Updated ${fmtWhen(annual.generatedAt)}`;
     const incompleteEl = document.getElementById("incomplete");
-    if (data.incompleteYears?.length) {
+    if (view === "monthly") {
       incompleteEl.hidden = false;
-      incompleteEl.textContent = `${data.incompleteYears.join(", ")} marked with * is year-to-date, not a full calendar year.`;
+      incompleteEl.textContent =
+        "Monthly means through the last complete calendar month. Current month is omitted.";
+    } else if (annual.incompleteYears?.length) {
+      incompleteEl.hidden = false;
+      incompleteEl.textContent = `${annual.incompleteYears.join(", ")} marked with * is year-to-date, not a full calendar year.`;
     }
-    renderCounts(data);
-    renderMeansTable(data);
-    const chart = buildChart(data);
-    renderToggles(data.series, chart);
+    renderCounts(annual);
+    renderMeansTable(annual);
+    let chart;
+    if (view === "monthly") {
+      const [monthly, wx] = await Promise.all([
+        loadJson("data/monthly-pm25.json"),
+        fetch("data/london-season-weather.json", { cache: "no-store" })
+          .then((r) => (r.ok ? r.json() : null))
+          .catch(() => null),
+      ]);
+      generated.textContent = `Updated ${fmtWhen(monthly.generatedAt)}`;
+      chart = buildMonthlyChart(monthly, wx);
+    } else {
+      chart = buildChart(annual);
+    }
+    renderToggles(annual.series, chart);
     await renderWeather();
   } catch (err) {
     generated.textContent = "";
     document.querySelector(".board").insertAdjacentHTML(
       "afterbegin",
-      `<p class="error">${err.message}. Run <code>npm run build:data</code> then refresh.</p>`,
+      `<p class="error">${err.message}. Run <code>npm run build:data</code>${view === "monthly" ? " and <code>npm run build:monthly</code>" : ""} then refresh.</p>`,
     );
   }
 }

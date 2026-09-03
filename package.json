@@ -6,9 +6,13 @@
   "scripts": {
     "fetch:bl": "node scripts/fetch-bl-annual.mjs",
     "fetch:laqn": "Rscript R/fetch_laqn_pm25_annual.R",
+    "fetch:bl-monthly": "node scripts/fetch-bl-monthly.mjs",
+    "fetch:laqn-monthly": "Rscript R/fetch_laqn_pm25_monthly.R",
     "fetch:weather": "node scripts/fetch-london-weather.mjs",
     "combine": "node scripts/combine-annual.mjs",
+    "combine:monthly": "node scripts/combine-monthly.mjs",
     "build:data": "node scripts/fetch-bl-annual.mjs && Rscript R/fetch_laqn_pm25_annual.R && node scripts/combine-annual.mjs && node scripts/fetch-london-weather.mjs",
+    "build:monthly": "node scripts/fetch-bl-monthly.mjs && Rscript R/fetch_laqn_pm25_monthly.R && node scripts/combine-monthly.mjs",
     "serve": "python3 serve.py"
   }
 }

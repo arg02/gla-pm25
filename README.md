@@ -18,6 +18,7 @@ npm run fetch:bl     # ListSensors + getRawClarityData?queryType=year
 npm run fetch:laqn   # R openair::importImperial (slow; many sites)
 npm run fetch:weather
 npm run combine
+npm run build:monthly  # hourly BL + openair LAQN monthly means
 python3 serve.py
 ```
 
@@ -32,6 +33,8 @@ python3 serve.py
 
 The current calendar year is plotted as year-to-date (dashed / starred). Series are selectable.
 
+**Monthly page** (`monthly.html`): same cohort and series, calendar-month means with spring/summer bands tinted like the weather year cards. BL from hourly `getClarityData/…/Hourly`; LAQN from `importImperial`. A site-month is kept if ≥50% of hours are present.
+
 **Rounding:** reported µg/m³ figures use half-up (not banker's rounding). 50.49 → 50; 50.5 → 51. Category means are averaged from site values, then rounded to 1 decimal.
 
 Hourly BL fallback is off by default (`BL_HOURLY_FALLBACK=1` to enable if the year endpoint fails).
@@ -40,5 +43,6 @@ Hourly BL fallback is off by default (`BL_HOURLY_FALLBACK=1` to enable if the ye
 
 - `data/bl-site-years.json`
 - `data/laqn-site-years.json`
-- `data/annual-pm25.json` — chart payload
+- `data/annual-pm25.json` — annual chart payload
+- `data/monthly-pm25.json` — monthly chart payload
 - `data/london-season-weather.json` — St James’s Park spring/summer weather (Open-Meteo)

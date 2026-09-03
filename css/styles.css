@@ -9,6 +9,9 @@
   --bl-bg: #0f9e90;
   --laqn-road: #c23040;
   --laqn-bg: #4a9a32;
+  --wx-wet: #3b7cc9;
+  --wx-stagnant: #c46a2e;
+  --wx-mid: #0f9e90;
   --shadow: 0 22px 50px rgba(21, 32, 43, 0.08);
 }
 
@@ -72,6 +75,32 @@ body {
   color: var(--ink-soft);
 }
 
+.view-nav {
+  display: flex;
+  gap: 0.15rem;
+  margin: 0 0 1.15rem;
+}
+
+.view-nav a {
+  color: var(--ink-soft);
+  text-decoration: none;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  padding: 0.28rem 0.7rem;
+  border: 1px solid transparent;
+}
+
+.view-nav a:hover {
+  color: var(--ink);
+}
+
+.view-nav a[aria-current="page"] {
+  color: var(--ink);
+  border-color: var(--rule);
+  background: rgba(255, 255, 255, 0.88);
+}
+
 h1 {
   margin: 0;
   font-family: Fraunces, Georgia, serif;
@@ -118,6 +147,7 @@ h1 sub {
 }
 
 .generated,
+.season-note,
 .incomplete,
 .colophon p {
   margin: 0;
@@ -179,6 +209,18 @@ h1 sub {
 .chart-wrap {
   position: relative;
   height: min(62vh, 520px);
+}
+
+.chart-wrap--monthly {
+  height: min(68vh, 560px);
+}
+
+.season-note {
+  margin: 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
+  max-width: 28rem;
+  text-align: right;
 }
 
 .incomplete {
@@ -335,15 +377,15 @@ h1 sub {
 }
 
 .wx-card--wet {
-  background: linear-gradient(180deg, rgba(59, 124, 201, 0.12), rgba(255, 255, 255, 0.92));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wx-wet) 12%, white), rgba(255, 255, 255, 0.92));
 }
 
 .wx-card--stagnant {
-  background: linear-gradient(180deg, rgba(196, 106, 46, 0.14), rgba(255, 255, 255, 0.92));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wx-stagnant) 14%, white), rgba(255, 255, 255, 0.92));
 }
 
 .wx-card--mid {
-  background: linear-gradient(180deg, rgba(15, 158, 144, 0.1), rgba(255, 255, 255, 0.92));
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wx-mid) 10%, white), rgba(255, 255, 255, 0.92));
 }
 
 .wx-card header {
@@ -454,5 +496,12 @@ h1 sub {
   }
   .chart-wrap {
     height: 380px;
+  }
+  .chart-wrap--monthly {
+    height: 420px;
+  }
+  .season-note {
+    text-align: left;
+    max-width: none;
   }
 }

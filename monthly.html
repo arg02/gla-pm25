@@ -3,7 +3,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Annual PM₂.₅ · Roadside vs Background</title>
+    <title>Monthly PM₂.₅ · Roadside vs Background</title>
     <meta name="theme-color" content="#eef3f6" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -13,27 +13,30 @@
     />
     <link rel="stylesheet" href="css/styles.css" />
   </head>
-  <body data-view="annual">
+  <body data-view="monthly">
     <div class="haze" aria-hidden="true"></div>
     <header class="mast">
       <p class="kicker">London monitoring · 2021–present</p>
       <nav class="view-nav" aria-label="Chart period">
-        <a href="index.html" aria-current="page">Annual</a>
-        <a href="monthly.html">Monthly</a>
+        <a href="index.html">Annual</a>
+        <a href="monthly.html" aria-current="page">Monthly</a>
       </nav>
-      <h1>Annual PM<sub>2.5</sub></h1>
+      <h1>Monthly PM<sub>2.5</sub></h1>
       <p class="lede">
         Mean of continuously active <em>roadside</em> and <em>background</em> sites
       </p>
     </header>
 
-    <section class="board" aria-label="Annual PM2.5 chart">
+    <section class="board" aria-label="Monthly PM2.5 chart">
       <div class="board__meta">
         <p class="generated" id="generated">Loading…</p>
+        <p class="season-note">
+          Shaded bands are spring (Mar–May) and summer (Jun–Aug), tinted like each year’s weather card.
+        </p>
       </div>
       <div class="toggles" id="toggles" role="group" aria-label="Series visibility"></div>
-      <div class="chart-wrap">
-        <canvas id="chart" aria-label="Annual PM2.5 by network and site type"></canvas>
+      <div class="chart-wrap chart-wrap--monthly">
+        <canvas id="chart" aria-label="Monthly PM2.5 by network and site type"></canvas>
       </div>
       <p class="incomplete" id="incomplete" hidden></p>
     </section>
@@ -60,14 +63,16 @@
 
     <footer class="colophon">
       <p>
-        Breathe London annual means from <code>getRawClarityData?queryType=year</code>
-        (official sensor-info source). LAQN from R <code>openair::importImperial</code>,
-        ≥75% hourly capture each complete year. Equal-weight mean of site annual means.
+        Breathe London monthly means from hourly
+        <code>getClarityData/…/Hourly</code> (same endpoint as DAQI–CAQI / polar plots).
+        LAQN from R <code>openair::importImperial</code>. A site-month is kept if ≥50% of hours
+        are present. Equal-weight mean of site monthly means.
         Cohort: currently active / open, operating since 2021, with data in every year 2021–2025.
       </p>
     </footer>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-annotation@3.1.0/dist/chartjs-plugin-annotation.min.js"></script>
     <script src="js/app.js"></script>
   </body>
 </html>

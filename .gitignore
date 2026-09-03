@@ -4,3 +4,4 @@ node_modules/
 .RData
 .Rproj.user/
 logs/
+data/cache/
