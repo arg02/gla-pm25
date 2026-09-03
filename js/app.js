@@ -85,10 +85,18 @@ function renderToggles(series, chart) {
     btn.setAttribute("aria-pressed", "true");
     btn.innerHTML = `<span class="swatch ${style.dash.length ? "swatch--dash" : "swatch--solid"}" style="--swatch:${style.color}"></span>${s.label} · ${s.n}`;
     btn.addEventListener("click", () => {
-      const ds = chart.data.datasets[i];
-      ds.hidden = !ds.hidden;
-      btn.setAttribute("aria-pressed", ds.hidden ? "false" : "true");
-      chart.update();
+      if (chart.isHighcharts) {
+        const hcSeries = chart._hc.series[i];
+        if (hcSeries) {
+          hcSeries.visible ? hcSeries.hide() : hcSeries.show();
+        }
+        btn.setAttribute("aria-pressed", hcSeries?.visible ? "true" : "false");
+      } else {
+        const ds = chart.data.datasets[i];
+        ds.hidden = !ds.hidden;
+        btn.setAttribute("aria-pressed", ds.hidden ? "false" : "true");
+        chart.update();
+      }
     });
     root.appendChild(btn);
   });
@@ -298,10 +306,40 @@ function bindZoomControls(chart) {
   const inn = document.getElementById("zoom-in");
   const out = document.getElementById("zoom-out");
   const reset = document.getElementById("zoom-reset");
-  if (!inn || !out || !reset || typeof chart.zoom !== "function") return;
-  inn.addEventListener("click", () => chart.zoom(1.4));
-  out.addEventListener("click", () => chart.zoom(0.7));
-  reset.addEventListener("click", () => chart.resetZoom());
+  if (!inn || !out || !reset) return;
+
+  if (chart.isHighcharts) {
+    const hc = chart._hc;
+    inn.addEventListener("click", () => {
+      const axis = hc.xAxis[0];
+      const { min, max, dataMin, dataMax } = axis.getExtremes();
+      const range = max - min;
+      const mid = (min + max) / 2;
+      const newRange = range / 1.4;
+      axis.setExtremes(
+        Math.max(dataMin, mid - newRange / 2),
+        Math.min(dataMax, mid + newRange / 2),
+      );
+    });
+    out.addEventListener("click", () => {
+      const axis = hc.xAxis[0];
+      const { min, max, dataMin, dataMax } = axis.getExtremes();
+      const range = max - min;
+      const mid = (min + max) / 2;
+      const newRange = range * 1.4;
+      axis.setExtremes(
+        Math.max(dataMin, mid - newRange / 2),
+        Math.min(dataMax, mid + newRange / 2),
+      );
+    });
+    reset.addEventListener("click", () => {
+      hc.xAxis[0].setExtremes(undefined, undefined);
+    });
+  } else if (typeof chart.zoom === "function") {
+    inn.addEventListener("click", () => chart.zoom(1.4));
+    out.addEventListener("click", () => chart.zoom(0.7));
+    reset.addEventListener("click", () => chart.resetZoom());
+  }
 }
 
 function renderWeatherVisual(wx) {
@@ -452,94 +490,126 @@ function monthTick(key) {
   return "";
 }
 
+const MONTH_NAMES = [
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
+];
+
+function monthLabel(key) {
+  const [y, m] = String(key).split("-");
+  return `${MONTH_NAMES[Number(m) - 1]} ${y}`;
+}
+
+function seasonPlotBands(labels, wx) {
+  const bands = [];
+  const years = [...new Set(labels.map((k) => k.slice(0, 4)))];
+  for (const year of years) {
+    const block = wx?.years?.[year];
+    const tone = block ? weatherTone(block) : null;
+    const rgb = tone ? TONE_RGB[tone.className] : "21, 32, 43";
+    const springA = tone ? 0.22 : 0.05;
+    const summerA = tone ? 0.13 : 0.035;
+    const ranges = [
+      { start: `${year}-03`, end: `${year}-05`, alpha: springA },
+      { start: `${year}-06`, end: `${year}-08`, alpha: summerA },
+    ];
+    for (const r of ranges) {
+      const i0 = labels.indexOf(r.start);
+      const i1 = labels.indexOf(r.end);
+      if (i0 < 0 || i1 < 0) continue;
+      bands.push({
+        from: i0 - 0.5,
+        to: i1 + 0.5,
+        color: `rgba(${rgb}, ${r.alpha})`,
+        zIndex: 0,
+      });
+    }
+  }
+  return bands;
+}
+
 function buildMonthlyChart(data, wx) {
   const labels = data.months.map(String);
-  const datasets = data.series.map((s) => {
+  const series = data.series.map((s) => {
     const style = SERIES_STYLE[s.id] || SERIES_STYLE.bl_roadside;
     return {
-      label: s.label,
+      name: s.label,
       data: labels.map((m) => s.values?.[m] ?? null),
-      borderColor: style.color,
-      backgroundColor: style.color,
-      borderDash: style.dash,
-      pointStyle: style.pointStyle,
-      pointRadius: 0,
-      pointHoverRadius: 5,
-      borderWidth: 2,
-      tension: 0.2,
-      spanGaps: false,
-      hidden: false,
+      color: style.color,
+      dashStyle: style.dash.length ? "ShortDash" : "Solid",
+      marker: {
+        symbol: style.pointStyle === "rect" ? "square" : "circle",
+        radius: 2,
+        enabled: false,
+      },
+      lineWidth: 2,
+      states: { hover: { lineWidth: 3 } },
+      connectNulls: false,
     };
   });
 
-  const ctx = document.getElementById("chart");
-  return new Chart(ctx, {
-    type: "line",
-    data: { labels, datasets },
-    plugins: [seasonBandPlugin(wx)],
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      interaction: { mode: "index", intersect: false },
-      plugins: {
-        legend: { display: false },
-        zoom: ZOOM_OPTIONS,
-        tooltip: {
-          backgroundColor: "#15202b",
-          titleColor: "#f6f9fb",
-          bodyColor: "#f6f9fb",
-          titleFont: { family: "Fraunces", size: 14 },
-          bodyFont: { family: "Commissioner", size: 13 },
-          padding: 12,
-          callbacks: {
-            title(items) {
-              const key = items[0]?.label || "";
-              const [y, m] = key.split("-");
-              const names = [
-                "Jan", "Feb", "Mar", "Apr", "May", "Jun",
-                "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
-              ];
-              return `${names[Number(m) - 1] || m} ${y}`;
-            },
-            label(item) {
-              const v = item.parsed.y;
-              if (v == null) return `${item.dataset.label}: no data`;
-              return `${item.dataset.label}: ${fmtUg(v)} µg/m³`;
-            },
-          },
+  const tickPositions = labels.reduce((acc, key, i) => {
+    if (key.endsWith("-01")) acc.push(i);
+    return acc;
+  }, []);
+
+  const hcChart = Highcharts.chart("hc-chart", {
+    chart: {
+      type: "line",
+      zoomType: "x",
+      panning: { enabled: true, type: "x" },
+      panKey: "shift",
+      backgroundColor: "transparent",
+      style: { fontFamily: "Commissioner, sans-serif" },
+      spacing: [10, 10, 10, 0],
+    },
+    title: { text: null },
+    credits: { enabled: false },
+    legend: { enabled: false },
+    xAxis: {
+      categories: labels.map(monthLabel),
+      tickPositions,
+      labels: {
+        formatter() {
+          const key = labels[this.pos];
+          return key ? key.slice(0, 4) : "";
         },
+        style: { color: AXIS_MUTED, fontSize: "12px" },
       },
-      scales: {
-        x: {
-          grid: { display: false },
-          ticks: {
-            font: { family: "Commissioner", size: 12 },
-            color: AXIS_MUTED,
-            maxRotation: 0,
-            autoSkip: false,
-            callback(value, index) {
-              return monthTick(labels[index]);
-            },
-          },
-        },
-        y: {
-          beginAtZero: true,
-          suggestedMax: 20,
-          title: {
-            display: true,
-            text: "µg/m³",
-            color: AXIS_MUTED,
-            font: { family: "Commissioner", size: 12 },
-          },
-          grid: { color: GRID },
-          ticks: {
-            font: { family: "Commissioner", size: 12 },
-            color: AXIS_MUTED,
-          },
-        },
+      plotBands: seasonPlotBands(labels, wx),
+      lineColor: GRID,
+      tickColor: GRID,
+      gridLineWidth: 0,
+    },
+    yAxis: {
+      min: 0,
+      softMax: 20,
+      title: { text: "µg/m³", style: { color: AXIS_MUTED, fontSize: "12px" } },
+      labels: { style: { color: AXIS_MUTED, fontSize: "12px" } },
+      gridLineColor: GRID,
+    },
+    tooltip: {
+      shared: true,
+      useHTML: true,
+      backgroundColor: "#15202b",
+      borderColor: "#15202b",
+      style: { color: "#f6f9fb", fontSize: "13px", fontFamily: "Commissioner" },
+      headerFormat: '<span style="font-family:Fraunces;font-size:14px">{point.key}</span><br/>',
+      pointFormat: '<span style="color:{series.color}">●</span> {series.name}: <b>{point.y:.1f}</b> µg/m³<br/>',
+    },
+    plotOptions: {
+      line: {
+        animation: false,
       },
     },
+    series,
   });
+
+  // Return a thin wrapper so toggle/zoom helpers still work
+  return {
+    _hc: hcChart,
+    isHighcharts: true,
+  };
 }
 
 async function loadJson(url) {
