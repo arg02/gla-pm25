@@ -1,16 +1,16 @@
 :root {
-  --ink: #e8eef3;
-  --ink-soft: #8b9bab;
-  --void: #071018;
-  --void-2: #0c1822;
-  --panel: #10202b;
-  --rule: rgba(232, 238, 243, 0.12);
-  --who: #d4b45a;
-  --bl-road: #ff5c3a;
-  --bl-bg: #2ec8b8;
-  --laqn-road: #f0a36b;
-  --laqn-bg: #7ab3ff;
-  --shadow: 0 28px 70px rgba(0, 0, 0, 0.35);
+  --ink: #15202b;
+  --ink-soft: #5b6b78;
+  --void: #e8eef3;
+  --void-2: #f6f9fb;
+  --panel: #ffffff;
+  --rule: rgba(21, 32, 43, 0.12);
+  --who: #c49a22;
+  --bl-road: #e24528;
+  --bl-bg: #0f9e90;
+  --laqn-road: #c46a2e;
+  --laqn-bg: #3b7cc9;
+  --shadow: 0 22px 50px rgba(21, 32, 43, 0.08);
 }
 
 *,
@@ -21,7 +21,7 @@
 
 html {
   min-height: 100%;
-  color-scheme: dark;
+  color-scheme: light;
 }
 
 body {
@@ -29,8 +29,8 @@ body {
   min-height: 100vh;
   color: var(--ink);
   background:
-    radial-gradient(900px 520px at 8% -8%, rgba(255, 92, 58, 0.16), transparent 48%),
-    radial-gradient(800px 480px at 100% 0%, rgba(46, 200, 184, 0.12), transparent 46%),
+    radial-gradient(900px 520px at 8% -8%, rgba(226, 69, 40, 0.07), transparent 48%),
+    radial-gradient(800px 480px at 100% 0%, rgba(15, 158, 144, 0.08), transparent 46%),
     linear-gradient(180deg, var(--void-2), var(--void));
   font-family: Commissioner, "Segoe UI", sans-serif;
   font-optical-sizing: auto;
@@ -42,8 +42,8 @@ body {
   inset: 0;
   z-index: 0;
   background-image:
-    linear-gradient(rgba(232, 238, 243, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(232, 238, 243, 0.035) 1px, transparent 1px);
+    linear-gradient(rgba(21, 32, 43, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(21, 32, 43, 0.045) 1px, transparent 1px);
   background-size: 48px 48px;
   mask-image: radial-gradient(ellipse at 50% 20%, #000 35%, transparent 78%);
 }
@@ -52,6 +52,7 @@ body {
 .board,
 .counts,
 .means,
+.weather,
 .colophon {
   position: relative;
   z-index: 1;
@@ -103,7 +104,7 @@ h1 sub {
   max-width: 1120px;
   margin: 0.5rem auto 0;
   padding: 1.25rem 1.35rem 1.1rem;
-  background: rgba(16, 32, 43, 0.86);
+  background: rgba(255, 255, 255, 0.88);
   border: 1px solid var(--rule);
   box-shadow: var(--shadow);
   backdrop-filter: blur(10px);
@@ -151,7 +152,7 @@ h1 sub {
 }
 
 .toggle:hover {
-  background: rgba(232, 238, 243, 0.06);
+  background: rgba(21, 32, 43, 0.04);
 }
 
 .toggle[aria-pressed="false"] {
@@ -252,7 +253,7 @@ h1 sub {
 .means__scroll {
   overflow-x: auto;
   border: 1px solid var(--rule);
-  background: rgba(16, 32, 43, 0.86);
+  background: rgba(255, 255, 255, 0.88);
 }
 
 .means-table {
@@ -275,7 +276,7 @@ h1 sub {
   text-transform: uppercase;
   font-weight: 600;
   color: var(--ink-soft);
-  background: rgba(232, 238, 243, 0.05);
+  background: rgba(21, 32, 43, 0.04);
 }
 
 .means-table tbody th {
@@ -300,6 +301,32 @@ h1 sub {
   vertical-align: middle;
   background: var(--swatch);
   border-radius: 99px;
+}
+
+.weather {
+  max-width: 1120px;
+  margin: 2.2rem auto 0;
+  padding: 0 1.5rem;
+}
+
+.weather h2 {
+  margin: 0;
+  font-family: Fraunces, Georgia, serif;
+  font-size: 1.55rem;
+  font-weight: 640;
+}
+
+.weather__lede {
+  max-width: 48rem;
+  margin: 0.55rem 0 1rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+.weather__note {
+  margin: 0.7rem 0 0;
+  font-size: 0.82rem;
+  color: var(--ink-soft);
 }
 
 .colophon {

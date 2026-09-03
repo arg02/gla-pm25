@@ -1,29 +1,29 @@
 const SERIES_STYLE = {
   bl_roadside: {
-    color: "#ff5c3a",
+    color: "#e24528",
     dash: [],
     pointStyle: "circle",
   },
   bl_background: {
-    color: "#2ec8b8",
+    color: "#0f9e90",
     dash: [],
     pointStyle: "circle",
   },
   laqn_roadside: {
-    color: "#f0a36b",
+    color: "#c46a2e",
     dash: [7, 5],
     pointStyle: "rect",
   },
   laqn_background: {
-    color: "#7ab3ff",
+    color: "#3b7cc9",
     dash: [7, 5],
     pointStyle: "rect",
   },
 };
 
-const WHO_COLOR = "#d4b45a";
-const AXIS_MUTED = "#8b9bab";
-const GRID = "rgba(232,238,243,0.08)";
+const WHO_COLOR = "#c49a22";
+const AXIS_MUTED = "#5b6b78";
+const GRID = "rgba(21,32,43,0.08)";
 
 function fmtWhen(iso) {
   if (!iso) return "";
@@ -109,6 +109,76 @@ function renderMeansTable(data) {
   table.innerHTML = `<thead><tr><th scope="col">Category</th>${head}</tr></thead><tbody>${rows}</tbody>`;
 }
 
+function weatherCell(v, unit = "") {
+  return Number.isFinite(v) ? `${v}${unit}` : "—";
+}
+
+function renderWeatherNarrative(wx) {
+  const y = wx.years || {};
+  const s23 = y["2023"]?.spring;
+  const s24 = y["2024"]?.spring;
+  const s22 = y["2022"]?.spring;
+  const s25 = y["2025"]?.spring;
+  const u23 = y["2023"]?.summer;
+  const u22 = y["2022"]?.summer;
+  const u25 = y["2025"]?.summer;
+  if (!s23 || !s24 || !s22 || !s25) return "";
+  return `2023–24 look like washout years: springs were wetter (${s23.precipMm} mm and ${s24.precipMm} mm vs ${s22.precipMm} mm in 2022), windier, and less easterly. Summer 2023 was also cool and wet (${u23.meanTempC}°C, ${u23.precipMm} mm) compared with 2022 (${u22.meanTempC}°C, ${u22.precipMm} mm). Spring 2025 flipped the other way — only ${s25.precipMm} mm of rain, the calmest wind (${s25.meanWindMs} m/s; ${s25.calmDayPct}% of days below 3 m/s), and the most easterly flow (${s25.easterlyPct}% of days). Summer 2025 was the warmest of the set (${u25.meanTempC}°C). That mix is consistent with a weather-driven rebound in annual PM₂.₅, though it does not rule out emission changes.`;
+}
+
+function renderWeatherTable(wx) {
+  const years = Object.keys(wx.years || {}).sort();
+  const metrics = [
+    { key: "meanTempC", label: "Mean temperature", unit: " °C" },
+    { key: "precipMm", label: "Total rainfall", unit: " mm" },
+    { key: "meanWindMs", label: "Mean wind", unit: " m/s" },
+    { key: "easterlyPct", label: "Easterly days", unit: "%" },
+    { key: "calmDayPct", label: "Calm days (<3 m/s)", unit: "%" },
+    { key: "sunshineHours", label: "Sunshine", unit: " h" },
+    { key: "dryDayPct", label: "Dry days", unit: "%" },
+  ];
+  const head = years
+    .flatMap((year) => [
+      `<th scope="col">${year} spr</th>`,
+      `<th scope="col">${year} sum</th>`,
+    ])
+    .join("");
+  const rows = metrics
+    .map((m) => {
+      const cells = years
+        .flatMap((year) => {
+          const spr = wx.years[year]?.spring?.[m.key];
+          const sum = wx.years[year]?.summer?.[m.key];
+          return [
+            `<td>${weatherCell(spr, m.unit)}</td>`,
+            `<td>${weatherCell(sum, m.unit)}</td>`,
+          ];
+        })
+        .join("");
+      return `<tr><th scope="row">${m.label}</th>${cells}</tr>`;
+    })
+    .join("");
+  return `<thead><tr><th scope="col">London</th>${head}</tr></thead><tbody>${rows}</tbody>`;
+}
+
+async function renderWeather() {
+  const lede = document.getElementById("weather-lede");
+  const table = document.getElementById("weather-table");
+  const note = document.getElementById("weather-note");
+  try {
+    const res = await fetch("data/london-season-weather.json", { cache: "no-store" });
+    if (!res.ok) throw new Error(`weather ${res.status}`);
+    const wx = await res.json();
+    lede.textContent = renderWeatherNarrative(wx);
+    table.innerHTML = renderWeatherTable(wx);
+    note.textContent = `St James’s Park daily weather from Open-Meteo archive. Easterly = dominant wind 45–135° (NE–SE), the continental sector linked with higher London PM₂.₅. ${wx.seasons.spring} / ${wx.seasons.summer}.`;
+  } catch (err) {
+    lede.textContent =
+      "Weather summary could not be loaded. Run npm run fetch:weather.";
+    console.warn(err);
+  }
+}
+
 function buildChart(data) {
   const labels = data.years.map(String);
   const incomplete = new Set((data.incompleteYears || []).map(String));
@@ -153,9 +223,9 @@ function buildChart(data) {
       plugins: {
         legend: { display: false },
         tooltip: {
-          backgroundColor: "#0b141b",
-          titleColor: "#e8eef3",
-          bodyColor: "#e8eef3",
+          backgroundColor: "#15202b",
+          titleColor: "#f6f9fb",
+          bodyColor: "#f6f9fb",
           titleFont: { family: "Fraunces", size: 14 },
           bodyFont: { family: "Commissioner", size: 13 },
           padding: 12,
@@ -218,6 +288,7 @@ async function main() {
     renderMeansTable(data);
     const chart = buildChart(data);
     renderToggles(data.series, chart);
+    await renderWeather();
   } catch (err) {
     generated.textContent = "";
     document.querySelector(".board").insertAdjacentHTML(

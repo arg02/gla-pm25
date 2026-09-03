@@ -1,0 +1,115 @@
+{
+  "generatedAt": "2026-09-03T11:10:46.542Z",
+  "source": "Open-Meteo archive ERA5-land / Europe/London daily",
+  "location": {
+    "name": "St James's Park",
+    "latitude": 51.5054,
+    "longitude": -0.131
+  },
+  "seasons": {
+    "spring": "March–May",
+    "summer": "June–August"
+  },
+  "notes": [
+    "Easterly days: daily dominant wind direction 45–135° (NE–SE), the continental sector associated with higher London PM2.5.",
+    "Dry days: precipitation < 0.2 mm. Calm days: mean 10 m wind < 3 m/s."
+  ],
+  "years": {
+    "2022": {
+      "spring": {
+        "nDays": 92,
+        "meanTempC": 10.5,
+        "precipMm": 157,
+        "meanWindMs": 3.9,
+        "sunshineHours": 865,
+        "meanHumidityPct": 74,
+        "easterlyPct": 30,
+        "dryDayPct": 57,
+        "calmDayPct": 29
+      },
+      "summer": {
+        "nDays": 92,
+        "meanTempC": 18.9,
+        "precipMm": 105,
+        "meanWindMs": 3.5,
+        "sunshineHours": 1125,
+        "meanHumidityPct": 65,
+        "easterlyPct": 24,
+        "dryDayPct": 54,
+        "calmDayPct": 36
+      }
+    },
+    "2023": {
+      "spring": {
+        "nDays": 92,
+        "meanTempC": 9.6,
+        "precipMm": 207,
+        "meanWindMs": 4.2,
+        "sunshineHours": 721,
+        "meanHumidityPct": 79,
+        "easterlyPct": 26,
+        "dryDayPct": 32,
+        "calmDayPct": 28
+      },
+      "summer": {
+        "nDays": 92,
+        "meanTempC": 17.6,
+        "precipMm": 185,
+        "meanWindMs": 4.2,
+        "sunshineHours": 1054,
+        "meanHumidityPct": 72,
+        "easterlyPct": 22,
+        "dryDayPct": 43,
+        "calmDayPct": 23
+      }
+    },
+    "2024": {
+      "spring": {
+        "nDays": 92,
+        "meanTempC": 10.8,
+        "precipMm": 221,
+        "meanWindMs": 4.4,
+        "sunshineHours": 730,
+        "meanHumidityPct": 78,
+        "easterlyPct": 17,
+        "dryDayPct": 26,
+        "calmDayPct": 26
+      },
+      "summer": {
+        "nDays": 92,
+        "meanTempC": 17.2,
+        "precipMm": 139,
+        "meanWindMs": 3.9,
+        "sunshineHours": 1017,
+        "meanHumidityPct": 71,
+        "easterlyPct": 12,
+        "dryDayPct": 57,
+        "calmDayPct": 33
+      }
+    },
+    "2025": {
+      "spring": {
+        "nDays": 92,
+        "meanTempC": 11.9,
+        "precipMm": 64,
+        "meanWindMs": 2.8,
+        "sunshineHours": 974,
+        "meanHumidityPct": 66,
+        "easterlyPct": 38,
+        "dryDayPct": 67,
+        "calmDayPct": 60
+      },
+      "summer": {
+        "nDays": 92,
+        "meanTempC": 19.6,
+        "precipMm": 149,
+        "meanWindMs": 2.9,
+        "sunshineHours": 1073,
+        "meanHumidityPct": 63,
+        "easterlyPct": 16,
+        "dryDayPct": 49,
+        "calmDayPct": 53
+      }
+    }
+  }
+}

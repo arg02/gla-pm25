@@ -16,6 +16,7 @@ Or step by step:
 ```bash
 npm run fetch:bl     # ListSensors + getRawClarityData?queryType=year
 npm run fetch:laqn   # R openair::importImperial (slow; many sites)
+npm run fetch:weather
 npm run combine
 python3 serve.py
 ```
@@ -38,3 +39,4 @@ Hourly BL fallback is off by default (`BL_HOURLY_FALLBACK=1` to enable if the ye
 - `data/bl-site-years.json`
 - `data/laqn-site-years.json`
 - `data/annual-pm25.json` — chart payload
+- `data/london-season-weather.json` — St James’s Park spring/summer weather (Open-Meteo)
