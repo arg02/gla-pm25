@@ -5,6 +5,7 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
+import { roundHalfUp } from "./lib/round.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.join(__dirname, "..");
@@ -46,7 +47,7 @@ function normalizeSite(s) {
 function meanOf(nums) {
   const v = nums.filter((x) => Number.isFinite(x));
   if (!v.length) return null;
-  return Math.round((v.reduce((a, b) => a + b, 0) / v.length) * 100) / 100;
+  return roundHalfUp(v.reduce((a, b) => a + b, 0) / v.length, 1);
 }
 
 function loadJson(p) {
@@ -106,6 +107,7 @@ function main() {
     incompleteYears: INCOMPLETE_YEARS.filter((y) => ALL_YEARS.includes(y)),
     notes: [
       "Equal-weight mean of site annual means (not pooled hours).",
+      "µg/m³ values rounded half-up to 1 decimal (50.49 → 50.0, 50.5 → 50.5 at 1 d.p.; 50.5 → 51 at 0 d.p.).",
       "BL: official getRawClarityData queryType=year, sites active since 2021 with a value in every year 2021–2025.",
       "LAQN: openair::importImperial, currently open since 2021, ≥75% hourly capture each year 2021–2025.",
       `${CURRENT_YEAR} is year-to-date and may be incomplete.`,

@@ -38,11 +38,29 @@ function fmtWhen(iso) {
   });
 }
 
+/** Round half up (50.49 → 50, 50.5 → 51). Not banker's rounding. */
+function roundHalfUp(value, decimals = 1) {
+  if (!Number.isFinite(value)) return null;
+  const sign = value < 0 ? -1 : 1;
+  const abs = Math.abs(value);
+  const factor = 10 ** decimals;
+  const scaled = abs * factor;
+  const whole = Math.floor(scaled + 1e-12);
+  const frac = scaled - whole;
+  const next = frac >= 0.5 - 1e-12 ? whole + 1 : whole;
+  return (sign * next) / factor;
+}
+
+function fmtUg(value, decimals = 1) {
+  const n = roundHalfUp(Number(value), decimals);
+  return n == null ? "—" : n.toFixed(decimals);
+}
+
 function latestComplete(data, series) {
   const years = data.completeYears || [];
   const y = years[years.length - 1];
   const v = series.values?.[String(y)];
-  return y && v != null ? `${v.toFixed(1)} µg/m³ in ${y}` : "—";
+  return y && v != null ? `${fmtUg(v)} µg/m³ in ${y}` : "—";
 }
 
 function renderToggles(series, chart) {
@@ -84,7 +102,7 @@ function renderCounts(data) {
 }
 
 function fmtMean(v) {
-  return Number.isFinite(v) ? v.toFixed(2) : "—";
+  return Number.isFinite(v) ? fmtUg(v, 1) : "—";
 }
 
 function renderMeansTable(data) {
@@ -235,7 +253,7 @@ function buildChart(data) {
               const extra = incomplete.has(y) ? " · YTD" : "";
               const v = item.parsed.y;
               if (v == null) return `${item.dataset.label}: no data`;
-              return `${item.dataset.label}: ${v.toFixed(1)} µg/m³${extra}`;
+              return `${item.dataset.label}: ${fmtUg(v)} µg/m³${extra}`;
             },
           },
         },

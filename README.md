@@ -32,6 +32,8 @@ python3 serve.py
 
 The current calendar year is plotted as year-to-date (dashed / starred). WHO annual PM2.5 guideline (5 µg/m³) is drawn on the chart. Series are selectable.
 
+**Rounding:** reported µg/m³ figures use half-up (not banker's rounding). 50.49 → 50; 50.5 → 51. Category means are averaged from site values, then rounded to 1 decimal.
+
 Hourly BL fallback is off by default (`BL_HOURLY_FALLBACK=1` to enable if the year endpoint fails).
 
 ## Outputs
