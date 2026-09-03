@@ -10,12 +10,12 @@ const SERIES_STYLE = {
     pointStyle: "circle",
   },
   laqn_roadside: {
-    color: "#c46a2e",
+    color: "#c23040",
     dash: [7, 5],
     pointStyle: "rect",
   },
   laqn_background: {
-    color: "#3b7cc9",
+    color: "#4a9a32",
     dash: [7, 5],
     pointStyle: "rect",
   },
