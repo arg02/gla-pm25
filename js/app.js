@@ -261,15 +261,15 @@ function seasonBandPlugin(wx) {
           // covers the months (and moves correctly with zoom/pan).
           const c0 = monthCentrePixel(x, labels, i0);
           const c1 = monthCentrePixel(x, labels, i1);
-          const step =
-            i0 + 1 < labels.length
-              ? monthCentrePixel(x, labels, i0 + 1) - c0
-              : i1 - 1 >= 0
-                ? c1 - monthCentrePixel(x, labels, i1 - 1)
-                : 0;
-          if (!Number.isFinite(step) || step <= 0) continue;
-          const left = c0 - step / 2;
-          const right = c1 + step / 2;
+          const cPrev = i0 - 1 >= 0 ? monthCentrePixel(x, labels, i0 - 1) : null;
+          const cNext = i1 + 1 < labels.length ? monthCentrePixel(x, labels, i1 + 1) : null;
+
+          if (!Number.isFinite(c0) || !Number.isFinite(c1)) continue;
+
+          // Band edges should be shared boundaries between adjacent months.
+          // Eg. spring ends at midpoint(May, Jun), summer starts at the same boundary.
+          const left = Number.isFinite(cPrev) ? (cPrev + c0) / 2 : area.left;
+          const right = Number.isFinite(cNext) ? (c1 + cNext) / 2 : area.right;
           const clampedLeft = Math.max(area.left, left);
           const clampedRight = Math.min(area.right, right);
           ctx.fillStyle = `rgba(${rgb}, ${band.alpha})`;
