@@ -45,4 +45,4 @@ Hourly BL fallback is off by default (`BL_HOURLY_FALLBACK=1` to enable if the ye
 - `data/laqn-site-years.json`
 - `data/annual-pm25.json` — annual chart payload
 - `data/monthly-pm25.json` — monthly chart payload
-- `data/london-season-weather.json` — St James’s Park spring/summer weather (Open-Meteo)
+- `data/london-season-weather.json` — St James’s Park winter (DJF), spring, and summer weather (Open-Meteo)

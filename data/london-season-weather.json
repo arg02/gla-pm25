@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-03T11:10:46.542Z",
+  "generatedAt": "2026-09-04T14:17:12.834Z",
   "source": "Open-Meteo archive ERA5-land / Europe/London daily",
   "location": {
     "name": "St James's Park",
@@ -7,6 +7,7 @@
     "longitude": -0.131
   },
   "seasons": {
+    "winter": "December–February (Dec of prior year through Feb)",
     "spring": "March–May",
     "summer": "June–August"
   },
@@ -16,6 +17,17 @@
   ],
   "years": {
     "2022": {
+      "winter": {
+        "nDays": 90,
+        "meanTempC": 6.2,
+        "precipMm": 151,
+        "meanWindMs": 4.5,
+        "sunshineHours": 380,
+        "meanHumidityPct": 85,
+        "easterlyPct": 9,
+        "dryDayPct": 48,
+        "calmDayPct": 24
+      },
       "spring": {
         "nDays": 92,
         "meanTempC": 10.5,
@@ -40,6 +52,17 @@
       }
     },
     "2023": {
+      "winter": {
+        "nDays": 90,
+        "meanTempC": 5.1,
+        "precipMm": 126,
+        "meanWindMs": 4.2,
+        "sunshineHours": 408,
+        "meanHumidityPct": 87,
+        "easterlyPct": 6,
+        "dryDayPct": 59,
+        "calmDayPct": 36
+      },
       "spring": {
         "nDays": 92,
         "meanTempC": 9.6,
@@ -64,6 +87,17 @@
       }
     },
     "2024": {
+      "winter": {
+        "nDays": 91,
+        "meanTempC": 7,
+        "precipMm": 256,
+        "meanWindMs": 5.2,
+        "sunshineHours": 341,
+        "meanHumidityPct": 85,
+        "easterlyPct": 7,
+        "dryDayPct": 38,
+        "calmDayPct": 12
+      },
       "spring": {
         "nDays": 92,
         "meanTempC": 10.8,
@@ -88,6 +122,17 @@
       }
     },
     "2025": {
+      "winter": {
+        "nDays": 90,
+        "meanTempC": 5.7,
+        "precipMm": 174,
+        "meanWindMs": 3.1,
+        "sunshineHours": 300,
+        "meanHumidityPct": 86,
+        "easterlyPct": 16,
+        "dryDayPct": 48,
+        "calmDayPct": 57
+      },
       "spring": {
         "nDays": 92,
         "meanTempC": 11.9,

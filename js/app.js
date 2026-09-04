@@ -150,17 +150,28 @@ function weatherCell(v, unit = "") {
   return Number.isFinite(v) ? `${v}${unit}` : "—";
 }
 
+const WEATHER_SEASONS = [
+  { key: "winter", label: "Winter", tableAbbr: "win" },
+  { key: "spring", label: "Spring", tableAbbr: "spr" },
+  { key: "summer", label: "Summer", tableAbbr: "sum" },
+];
+
 function renderWeatherNarrative(wx) {
   const y = wx.years || {};
   const s23 = y["2023"]?.spring;
   const s24 = y["2024"]?.spring;
   const s22 = y["2022"]?.spring;
   const s25 = y["2025"]?.spring;
+  const w25 = y["2025"]?.winter;
   const u23 = y["2023"]?.summer;
   const u22 = y["2022"]?.summer;
   const u25 = y["2025"]?.summer;
   if (!s23 || !s24 || !s22 || !s25) return "";
-  return `2023–24 look like washout years: springs were wetter (${s23.precipMm} mm and ${s24.precipMm} mm vs ${s22.precipMm} mm in 2022), windier, and less easterly. Summer 2023 was also cool and wet (${u23.meanTempC}°C, ${u23.precipMm} mm) compared with 2022 (${u22.meanTempC}°C, ${u22.precipMm} mm). Spring 2025 flipped the other way — only ${s25.precipMm} mm of rain, the calmest wind (${s25.meanWindMs} m/s; ${s25.calmDayPct}% of days below 3 m/s), and the most easterly flow (${s25.easterlyPct}% of days). Summer 2025 was the warmest of the set (${u25.meanTempC}°C).`;
+  let text = `2023–24 look like washout years: springs were wetter (${s23.precipMm} mm and ${s24.precipMm} mm vs ${s22.precipMm} mm in 2022), windier, and less easterly. Summer 2023 was also cool and wet (${u23.meanTempC}°C, ${u23.precipMm} mm) compared with 2022 (${u22.meanTempC}°C, ${u22.precipMm} mm). Spring 2025 flipped the other way — only ${s25.precipMm} mm of rain, the calmest wind (${s25.meanWindMs} m/s; ${s25.calmDayPct}% of days below 3 m/s), and the most easterly flow (${s25.easterlyPct}% of days). Summer 2025 was the warmest of the set (${u25.meanTempC}°C).`;
+  if (w25) {
+    text += ` Winter 2025 (Dec–Feb) was notably calm (${w25.calmDayPct}% of days below 3 m/s), with an easterly spell in February that fits the Feb–Mar PM₂.₅ build-up on the monthly chart.`;
+  }
+  return text;
 }
 
 function renderWeatherTable(wx) {
@@ -175,22 +186,21 @@ function renderWeatherTable(wx) {
     { key: "dryDayPct", label: "Dry days", unit: "%" },
   ];
   const head = years
-    .flatMap((year) => [
-      `<th scope="col">${year} spr</th>`,
-      `<th scope="col">${year} sum</th>`,
-    ])
+    .flatMap((year) =>
+      WEATHER_SEASONS.map(
+        (season) => `<th scope="col">${year} ${season.tableAbbr}</th>`,
+      ),
+    )
     .join("");
   const rows = metrics
     .map((m) => {
       const cells = years
-        .flatMap((year) => {
-          const spr = wx.years[year]?.spring?.[m.key];
-          const sum = wx.years[year]?.summer?.[m.key];
-          return [
-            `<td>${weatherCell(spr, m.unit)}</td>`,
-            `<td>${weatherCell(sum, m.unit)}</td>`,
-          ];
-        })
+        .flatMap((year) =>
+          WEATHER_SEASONS.map((season) => {
+            const v = wx.years[year]?.[season.key]?.[m.key];
+            return `<td>${weatherCell(v, m.unit)}</td>`;
+          }),
+        )
         .join("");
       return `<tr><th scope="row">${m.label}</th>${cells}</tr>`;
     })
@@ -209,9 +219,9 @@ function weatherMaxes(wx) {
   const maxes = {};
   for (const m of WX_METERS) maxes[m.key] = 0;
   for (const year of Object.values(wx.years || {})) {
-    for (const season of ["spring", "summer"]) {
+    for (const season of WEATHER_SEASONS) {
       for (const m of WX_METERS) {
-        const v = year[season]?.[m.key];
+        const v = year[season.key]?.[m.key];
         if (Number.isFinite(v) && v > maxes[m.key]) maxes[m.key] = v;
       }
     }
@@ -220,10 +230,16 @@ function weatherMaxes(wx) {
 }
 
 function weatherTone(yearBlock) {
-  const rain = (yearBlock.spring?.precipMm || 0) + (yearBlock.summer?.precipMm || 0);
-  const calm = (yearBlock.spring?.calmDayPct || 0) + (yearBlock.summer?.calmDayPct || 0);
-  if (rain >= 340) return { className: "wx-card--wet", tag: "Wet / mixed" };
-  if (calm >= 100 && rain < 250) return { className: "wx-card--stagnant", tag: "Dry / stagnant" };
+  const rain =
+    (yearBlock.winter?.precipMm || 0) +
+    (yearBlock.spring?.precipMm || 0) +
+    (yearBlock.summer?.precipMm || 0);
+  const calm =
+    (yearBlock.winter?.calmDayPct || 0) +
+    (yearBlock.spring?.calmDayPct || 0) +
+    (yearBlock.summer?.calmDayPct || 0);
+  if (rain >= 420) return { className: "wx-card--wet", tag: "Wet / mixed" };
+  if (calm >= 150 && rain < 320) return { className: "wx-card--stagnant", tag: "Dry / stagnant" };
   return { className: "wx-card--mid", tag: "Warmer / drier summer" };
 }
 
@@ -351,11 +367,7 @@ function renderWeatherVisual(wx) {
     .map((year) => {
       const block = wx.years[year];
       const tone = weatherTone(block);
-      const seasons = [
-        { key: "spring", label: "Spring" },
-        { key: "summer", label: "Summer" },
-      ]
-        .map((season) => {
+      const seasons = WEATHER_SEASONS.map((season) => {
           const stats = block[season.key] || {};
           const meters = WX_METERS.map((m) => {
             const v = stats[m.key];
@@ -394,7 +406,7 @@ async function renderWeather() {
     lede.textContent = renderWeatherNarrative(wx);
     renderWeatherVisual(wx);
     table.innerHTML = renderWeatherTable(wx);
-    note.textContent = `St James’s Park daily weather from Open-Meteo archive. Easterly = dominant wind 45–135° (NE–SE), the continental sector linked with higher London PM₂.₅. ${wx.seasons.spring} / ${wx.seasons.summer}.`;
+    note.textContent = `St James’s Park daily weather from Open-Meteo archive. Easterly = dominant wind 45–135° (NE–SE), the continental sector linked with higher London PM₂.₅. Winter = ${wx.seasons.winter}; ${wx.seasons.spring}; ${wx.seasons.summer}.`;
   } catch (err) {
     lede.textContent =
       "Weather summary could not be loaded. Run npm run fetch:weather.";

@@ -16,9 +16,19 @@ const LON = -0.131;
 const YEARS = [2022, 2023, 2024, 2025];
 
 const SEASONS = {
+  winter: { label: "Winter (DJF)" },
   spring: { label: "Spring (MAM)", months: [3, 4, 5] },
   summer: { label: "Summer (JJA)", months: [6, 7, 8] },
 };
+
+function febEnd(year) {
+  const leap = (year % 4 === 0 && year % 100 !== 0) || year % 400 === 0;
+  return leap ? `${year}-02-29` : `${year}-02-28`;
+}
+
+async function fetchWinter(year) {
+  return fetchRange(`${year - 1}-12-01`, febEnd(year));
+}
 
 function mean(nums) {
   const v = nums.filter((x) => Number.isFinite(x));
@@ -91,10 +101,12 @@ async function fetchRange(startDate, endDate, attempt = 1) {
 }
 
 async function fetchYear(year) {
+  const winter = await fetchWinter(year);
+  await sleep(400);
   const spring = await fetchRange(`${year}-03-01`, `${year}-05-31`);
   await sleep(400);
   const summer = await fetchRange(`${year}-06-01`, `${year}-08-31`);
-  return [...spring, ...summer];
+  return { winter, spring, summer };
 }
 
 function summarise(rows) {
@@ -128,11 +140,13 @@ async function main() {
     console.log(`Fetching Open-Meteo daily ${year}…`);
     const rows = await fetchYear(year);
     years[year] = {};
-    for (const [key, season] of Object.entries(SEASONS)) {
-      const subset = rows.filter((r) => {
-        const m = Number(r.date.slice(5, 7));
-        return season.months.includes(m);
-      });
+    years[year].winter = summarise(rows.winter);
+    console.log(
+      `  ${SEASONS.winter.label}: ${years[year].winter.meanTempC}°C, ${years[year].winter.precipMm} mm, wind ${years[year].winter.meanWindMs} m/s, easterly ${years[year].winter.easterlyPct}%, sun ${years[year].winter.sunshineHours} h`,
+    );
+    for (const key of ["spring", "summer"]) {
+      const season = SEASONS[key];
+      const subset = rows[key];
       years[year][key] = summarise(subset);
       const s = years[year][key];
       console.log(
@@ -146,6 +160,7 @@ async function main() {
     source: "Open-Meteo archive ERA5-land / Europe/London daily",
     location: { name: "St James's Park", latitude: LAT, longitude: LON },
     seasons: {
+      winter: "December–February (Dec of prior year through Feb)",
       spring: "March–May",
       summer: "June–August",
     },
